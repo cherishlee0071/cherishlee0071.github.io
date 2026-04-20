@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智启同途家教平台 - 专业教员展示</title>
+    <style>
+        /* ===== 全局样式重置与基础设置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1E3A8A;      /* 深蓝色主色调 */
+            --primary-light: #3B5998;      /* 浅蓝色 */
+            --primary-dark: #0F1F4D;       /* 更深的蓝色 */
+            --bg-color: #F3F4F6;           /* 浅灰色背景 */
+            --card-bg: #FFFFFF;            /* 卡片白色背景 */
+            --text-primary: #1F2937;       /* 主要文字颜色 */
+            --text-secondary: #6B7280;     /* 次要文字颜色 */
+            --border-color: #E5E7EB;       /* 边框颜色 */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --radius: 12px;                /* 圆角半径 */
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== 头部区域 ===== */
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* ===== 搜索框区域 ===== */
+        .search-container {
+            max-width: 600px;
+            margin: -1.5rem auto 2rem;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            background: white;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
+        }
+
+        .search-box::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* ===== 主内容区域 ===== */
+        main {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem 3rem;
+            width: 100%;
+        }
+
+        /* ===== 瀑布流卡片网格布局 ===== */
+        .teachers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* 响应式调整：小屏幕单列 */
+        @media (max-width: 640px) {
+            .teachers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== 教员卡片样式 ===== */
+        .teacher-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .teacher-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .teacher-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .teacher-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* 卡片头部：学校和姓名 */
+        .card-header {
+            margin-bottom: 1rem;
+        }
+
+        .school-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .teacher-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .teacher-grade {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* 任教科目标签 */
+        .subjects-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .subject-tag {
+            background: #EFF6FF;
+            color: var(--primary-color);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid #DBEAFE;
+        }
+
+        /* 薪酬信息 */
+        .salary-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .salary-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .salary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .salary-unit {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* 无结果提示 */
+        .no-results {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            grid-column: 1 / -1;
+        }
+
+        /* ===== 详情弹窗（模态框） ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .modal-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .info-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .info-value.salary-highlight {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .detail-text {
+            background: #F9FAFB;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            line-height: 1.8;
+        }
+
+        /* PDF按钮 */
+        .pdf-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .pdf-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .pdf-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ===== 底部区域 ===== */
+        footer {
+            background: #E5E7EB;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-copyright {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== 联系信息和隐私政策弹窗 ===== */
+        .info-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .info-modal.active {
+            display: flex;
+        }
+
+        .info-modal-content {
+            background: white;
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 100%;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .info-modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .info-modal-text {
+            color: var(--text-primary);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .info-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .info-modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0.75rem 0;
+            padding: 0.75rem;
+            background: #F9FAFB;
+            border-radius: 8px;
+        }
+
+        .contact-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header>
+        <h1>智启同途家教平台</h1>
+        <p>汇聚名校优秀教员，为您提供专业辅导服务</p>
+    </header>
+
+    <!-- 搜索框 -->
+    <div class="search-container">
+        <input 
+            type="text" 
+            class="search-box" 
+            id="searchInput" 
+            placeholder="搜索学校、科目或教员姓名..."
+        >
+    </div>
+
+    <!-- 主内容区：教员卡片网格 -->
+    <main>
+        <div class="teachers-grid" id="teachersGrid">
+            <!-- 卡片将通过JavaScript动态生成 -->
+        </div>
+    </main>
+
+    <!-- 详情弹窗 -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-close" id="modalClose">&times;</button>
+                <h2 class="modal-title" id="modalName"></h2>
+                <p class="modal-subtitle" id="modalSchool"></p>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- 详细信息将通过JavaScript动态填充 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 联系信息弹窗 -->
+    <div class="info-modal" id="contactModal">
+        <div class="info-modal-content">
+            <button class="info-modal-close" onclick="closeInfoModal('contactModal')">&times;</button>
+            <h3 class="info-modal-title">联系我们</h3>
+            <div class="contact-item">
+                <svg class="contact-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                </svg>
+                <span>微信：cherishlee0707</span>
+            </div>
+            <div class="contact-item">
+                <svg class="contact-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                </svg>
+                <span>邮箱：hello__world007@outlook.com</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 隐私政策弹窗 -->
+    <div class="info-modal" id="privacyModal">
+        <div class="info-modal-content">
+            <button class="info-modal-close" onclick="closeInfoModal('privacyModal')">&times;</button>
+            <h3 class="info-modal-title">隐私政策</h3>
+            <p class="info-modal-text">
+                本平台仅展示教员信息，具体教学事宜由家长与教员自行协商。我们承诺：
+            </p>
+            <ul style="margin-left: 1.5rem; color: var(--text-primary); line-height: 1.8;">
+                <li>不收集用户个人信息</li>
+                <li>不存储任何敏感数据</li>
+                <li>所有展示信息均由教员自行提供</li>
+                <li>平台仅提供信息展示服务，不参与交易过程</li>
+            </ul>
+            <p class="info-modal-text" style="margin-top: 1rem;">
+                如有任何疑问，请通过「联系我们」与我们取得联系。
+            </p>
+        </div>
+    </div>
+
+    <!-- 底部 -->
+    <footer>
+        <div class="footer-links">
+            <a class="footer-link" onclick="openInfoModal('contactModal')">联系我们</a>
+            <a class="footer-link" onclick="openInfoModal('privacyModal')">隐私政策</a>
+        </div>
+        <p class="footer-copyright">&copy; 2026 智启同途家教平台. All rights reserved.</p>
+    </footer>
+
+    <!-- 引入教员数据 -->
+    <script src="teachers.js"></script>
+
+    <!-- 主脚本 -->
+    <script>
+        // ===== 全局变量 =====
+        let filteredTeachers = [...teachersData]; // 过滤后的教员列表
+
+        // ===== DOM元素引用 =====
+        const searchInput = document.getElementById('searchInput');
+        const teachersGrid = document.getElementById('teachersGrid');
+        const detailModal = document.getElementById('detailModal');
+        const modalClose = document.getElementById('modalClose');
+        const modalName = document.getElementById('modalName');
+        const modalSchool = document.getElementById('modalSchool');
+        const modalBody = document.getElementById('modalBody');
+
+        // ===== 初始化：渲染所有教员卡片 =====
+        function init() {
+            renderTeachers(teachersData);
+        }
+
+        // ===== 渲染教员卡片 =====
+        function renderTeachers(teachers) {
+            teachersGrid.innerHTML = '';
+
+            if (teachers.length === 0) {
+                teachersGrid.innerHTML = '<div class="no-results">未找到匹配的教员，请尝试其他关键词</div>';
+                return;
+            }
+
+            teachers.forEach(teacher => {
+                const card = createTeacherCard(teacher);
+                teachersGrid.appendChild(card);
+            });
+        }
+
+        // ===== 创建单个教员卡片 =====
+        function createTeacherCard(teacher) {
+            const card = document.createElement('div');
+            card.className = 'teacher-card';
+            card.onclick = () => openDetailModal(teacher);
+
+            // 构建科目标签HTML
+            const subjectsHtml = teacher.subjects
+                .map(subject => `<span class="subject-tag">${subject}</span>`)
+                .join('');
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="school-badge">${teacher.school}</span>
+                    <h3 class="teacher-name">${teacher.name}</h3>
+                    <p class="teacher-grade">${teacher.grade} · ${teacher.gender === '男' ? '♂' : '♀'}</p>
+                </div>
+                <div class="subjects-container">
+                    ${subjectsHtml}
+                </div>
+                <div class="salary-info">
+                    <span class="salary-label">预期薪酬</span>
+                    <div>
+                        <span class="salary-value">¥${teacher.expectedSalary}</span>
+                        <span class="salary-unit">/小时</span>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // ===== 搜索功能 =====
+        searchInput.addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase().trim();
+
+            if (!keyword) {
+                filteredTeachers = [...teachersData];
+            } else {
+                filteredTeachers = teachersData.filter(teacher => {
+                    // 搜索学校、姓名、科目
+                    const matchSchool = teacher.school.toLowerCase().includes(keyword);
+                    const matchName = teacher.name.toLowerCase().includes(keyword);
+                    const matchSubjects = teacher.subjects.some(subject => 
+                        subject.toLowerCase().includes(keyword)
+                    );
+                    return matchSchool || matchName || matchSubjects;
+                });
+            }
+
+            renderTeachers(filteredTeachers);
+        });
+
+        // ===== 打开详情弹窗 =====
+        function openDetailModal(teacher) {
+            modalName.textContent = teacher.name;
+            modalSchool.textContent = `${teacher.school} · ${teacher.grade}`;
+
+            // 构建详细信息HTML
+            const subjectsList = teacher.subjects.join('、');
+            
+            modalBody.innerHTML = `
+                <div class="info-section">
+                    <div class="info-label">基本信息</div>
+                    <div class="info-value">
+                        <strong>ID：</strong>${teacher.id}<br>
+                        <strong>性别：</strong>${teacher.gender}<br>
+                        <strong>学校：</strong>${teacher.school}<br>
+                        <strong>年级：</strong>${teacher.grade}
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-label">任教科目</div>
+                    <div class="info-value">${subjectsList}</div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-label">方便时间</div>
+                    <div class="info-value">${teacher.availableTime}</div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-label">预期薪酬</div>
+                    <div class="info-value salary-highlight">¥${teacher.expectedSalary} /小时</div>
+                </div>
+
+                ${teacher.detailInfo ? `
+                <div class="info-section">
+                    <div class="info-label">个人简介</div>
+                    <div class="detail-text">${teacher.detailInfo}</div>
+                </div>
+                ` : ''}
+
+                <a href="${teacher.pdfUrl}" target="_blank" class="pdf-button">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    查看PDF简历
+                </a>
+            `;
+
+            detailModal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // 禁止背景滚动
+        }
+
+        // ===== 关闭详情弹窗 =====
+        function closeDetailModal() {
+            detailModal.classList.remove('active');
+            document.body.style.overflow = ''; // 恢复滚动
+        }
+
+        modalClose.addEventListener('click', closeDetailModal);
+
+        // 点击弹窗外部关闭
+        detailModal.addEventListener('click', (e) => {
+            if (e.target === detailModal) {
+                closeDetailModal();
+            }
+        });
+
+        // ESC键关闭弹窗
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDetailModal();
+                closeAllInfoModals();
+            }
+        });
+
+        // ===== 打开信息弹窗（联系我们/隐私政策） =====
+        function openInfoModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        // ===== 关闭信息弹窗 =====
+        function closeInfoModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // ===== 关闭所有信息弹窗 =====
+        function closeAllInfoModals() {
+            document.querySelectorAll('.info-modal').forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+
+        // 点击信息弹窗外部关闭
+        document.querySelectorAll('.info-modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // ===== 启动应用 =====
+        init();
+    </script>
+</body>
+</html>
